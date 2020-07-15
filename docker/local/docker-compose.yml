@@ -1,0 +1,74 @@
+version: '3.7'
+
+volumes:
+  logs:
+    driver: local
+
+networks:
+  app:
+
+services:
+  nginx:
+    build:
+      context: ../..
+      dockerfile: docker/local/nginx/Dockerfile
+    ports:
+      - 8080:80
+    volumes:
+      - ../..:/app
+    networks:
+      app:
+
+  php-fpm:
+    build:
+      context: ../..
+      dockerfile: docker/local/php-fpm/Dockerfile
+    volumes:
+      - ../..:/app
+    networks:
+      app:
+
+  php-workers:
+    build:
+      context: ../..
+      dockerfile: docker/local/php-workers/Dockerfile
+    volumes:
+      - ../..:/app
+    networks:
+      app:
+
+  rabbitmq:
+    build:
+      context: ../..
+      dockerfile: docker/local/rabbitmq/Dockerfile
+    ports:
+      - 15672:15672
+    networks:
+      app:
+
+  mysql:
+    build:
+      context: ../..
+      dockerfile: docker/local/mysql/Dockerfile
+    environment:
+      MYSQL_DATABASE: 'app'
+      MYSQL_USER: 'db_user'
+      MYSQL_PASSWORD: 'db_password'
+      MYSQL_ROOT_PASSWORD: 'db_password_root'
+    ports:
+      - 3306:3306
+    volumes:
+      - /tmp/mysql:/var/lib/mysql
+    networks:
+      app:
+
+  redis:
+    build:
+      context: ../..
+      dockerfile: docker/local/redis/Dockerfile
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_PASSWORD: 'redis_password'
+    networks:
+      app:
